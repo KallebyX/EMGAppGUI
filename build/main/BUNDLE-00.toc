@@ -1,0 +1,3 @@
+([('main',
+   '/Users/kalleby/Documents/EMGAppGUI/ProjetoComGUI/dist/main',
+   'EXECUTABLE')],)
