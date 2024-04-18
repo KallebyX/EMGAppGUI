@@ -20,6 +20,12 @@ class TestSignalProcessing(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+        # Testa se o filtro está funcionando corretamente (e.g., reduzindo a amplitude do ruído de alta frequência)
+        self.assertTrue(np.all(np.abs(filtered_data) < np.abs(data)))
+
+if __name__ == '__main__':
+    unittest.main()
+
         self.assertTrue(np.all(np.abs(filtered_data) < np.abs(data)))
 
 if __name__ == '__main__':
