@@ -3,21 +3,32 @@ import serial.tools.list_ports
 import numpy as np
 
 class SerialReader:
-    def __init__(self):
+    def __init__(self, port=None, baud_rate=115200):
         self.ser = None
+        self.port = port
+        self.baud_rate = baud_rate
+        self.connect()
 
     def get_available_ports(self):
         ports = [port.device for port in serial.tools.list_ports.comports()]
         return ports
 
-    def connect(self, port, baud_rate=115200):
-        if self.ser and self.ser.is_open:
+    def connect(self):
+        if self.ser:
             self.ser.close()
-        self.ser = serial.Serial(port, baudrate=baud_rate, timeout=1)
+        if self.port:
+            try:
+                self.ser = serial.Serial(self.port, baudrate=self.baud_rate, timeout=1)
+                print(f"Connected to {self.port} at {self.baud_rate} baud rate.")
+            except serial.SerialException as e:
+                print(f"Failed to connect to {self.port}: {e}")
+                self.ser = None
 
     def read_data(self):
         if not self.ser or not self.ser.is_open:
-            raise ValueError("Porta serial não está aberta")
+            self.connect()  # Attempt to reconnect
+            if not self.ser:
+                raise ValueError("Unable to open serial port.")
         data = []
         while self.ser.in_waiting > 0:
             line = self.ser.readline().decode('utf-8').strip()
@@ -28,18 +39,14 @@ class SerialReader:
         return np.array(data)
 
 if __name__ == "__main__":
-    # Instantiate SerialReader
-    serial_reader = SerialReader()
-
-    # Get available ports
+    serial_reader = SerialReader('COM3')
     available_ports = serial_reader.get_available_ports()
     print("Available ports:", available_ports)
+    while True:
+        data = serial_reader.read_data()
+        if data.size > 0:
+            print("Received data:", data)
 
-    # Connect to COM3 port
-    port_name = 'COM3'
-    baud_rate = 115200
-    serial_reader.connect(port_name, baud_rate)
-    print(f"Connected to port {port_name} at {baud_rate} baud rate.")
 
     # Read data
     try:
