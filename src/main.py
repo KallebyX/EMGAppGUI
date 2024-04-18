@@ -13,8 +13,8 @@ class EMGApp(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.reader = SerialReader()
-        self.reader.connect('COM3')  # Conectar especificamente ao COM3
-        self.paused = False  # Variável para controlar o estado de pausa
+        self.reader.connect('COM3')
+        self.paused = False
 
         self.error_label = QLabel()
         self.layout = QVBoxLayout()
@@ -27,47 +27,35 @@ class EMGApp(QMainWindow):
         self.plot.setLabel('left', 'Amplitude')
         self.plot.setLabel('bottom', 'Time')
 
-        self.x_data = np.array([])  # Array para armazenar os dados do eixo x
-        self.y_data = np.array([])  # Array para armazenar os dados do eixo y
+        self.x_data = np.array([])
+        self.y_data = np.array([])
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_display)
-        self.timer.start(1000) # Update every 50 milliseconds
+        self.timer.start(50)  # Update every 50 milliseconds
 
     def update_display(self):
-        try:
-            if not self.paused:
-                data = self.reader.read_data()
-                if len(data) < 21:
-                    return
+        if not self.paused:
+            data = self.reader.read_data()
+            if len(data) > 0:
                 filtered_data = apply_filters(data)
-                if len(filtered_data) < 1:
-                    return
                 self.append_data(filtered_data)
                 self.display_data()
-        except Exception as e:
-            self.error_label.setText(str(e))
 
     def append_data(self, data):
-        try:
-            self.x_data = np.append(self.x_data, len(self.y_data) + np.arange(len(data)))
-            self.y_data = np.append(self.y_data, data)
-        except Exception as e:
-            self.error_label.setText(str(e))
+        self.x_data = np.append(self.x_data, len(self.y_data) + np.arange(len(data)))
+        self.y_data = np.append(self.y_data, data)
 
     def display_data(self):
-        try:
-            self.plot.clear()  # Limpar o gráfico antes de desenhar novos dados
-            self.plot.plot(self.x_data, self.y_data, pen=(255,0,0), name="EMG Data")
-        except Exception as e:
-            self.error_label.setText(str(e))
-
-    def keyPressEvent(self, event):
-        # Manipular pausa/continuação quando a tecla 'p' é pressionada
-        if event.key() == ord('p'):
-            self.paused = not self.paused
+        self.plot.clear()
+        self.plot.plot(self.x_data, the_y_data, pen=(255,0,0), name="EMG Data")
 
 if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    ex = EMGApp()
+    ex.show()
+    sys.exit(app.exec_())
+
     app = QApplication(sys.argv)
     ex = EMGApp()
     ex.show()
