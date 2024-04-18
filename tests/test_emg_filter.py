@@ -1,15 +1,14 @@
 import unittest
 import numpy as np
-import sys
-sys.path.append('ProjetoComGUI/src')
-import data_processing.signal_processing as sp
+from src.data_processing.signal_processing import SignalProcessor
 
 class TestEMGFilter(unittest.TestCase):
     def test_filter(self):
         # Simula uma onda EMG com ruído
         emg_signal = self.generate_emg_signal()
+        processor = SignalProcessor()
         # Aplica o filtro ao sinal simulado
-        filtered_signal = sp.apply_filters(emg_signal)
+        filtered_signal = processor.apply_filters(emg_signal)
         # Verifica se os dados filtrados estão dentro do intervalo esperado
         self.assertTrue(np.all(filtered_signal >= -1) and np.all(filtered_signal <= 1))
 
@@ -24,6 +23,9 @@ class TestEMGFilter(unittest.TestCase):
         noise = np.random.normal(0, 0.5, len(emg_signal))  # Ruído gaussiano com média 0 e desvio padrão 0.5
         emg_with_noise = emg_signal + noise
         return emg_with_noise
+
+if __name__ == '__main__':
+    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()
